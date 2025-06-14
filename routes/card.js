@@ -5,10 +5,10 @@ import * as cheerio from "cheerio";
 const router = express.Router();
 
 /**
- * ดึงราคาจาก Card Kingdom
+ * 🔸 ดึงราคาจาก Card Kingdom (ผ่าน /shop/search ที่โหลด HTML ตรง)
  */
 async function getCardKingdomPrice(cardName) {
-  const searchUrl = `https://www.cardkingdom.com/catalog/search?search=header&filter[name]=${encodeURIComponent(
+  const searchUrl = `https://www.cardkingdom.com/shop/search?search=header&filter[name]=${encodeURIComponent(
     cardName
   )}`;
 
@@ -18,11 +18,11 @@ async function getCardKingdomPrice(cardName) {
     });
 
     const $ = cheerio.load(res.data);
-    const product = $(".productDetail").first();
+    const product = $(".itemContentWrapper").first();
 
-    const name = product.find(".productLink").text().trim();
+    const name = product.find(".productDetails a").text().trim();
     const price = product.find(".stylePrice").first().text().trim();
-    const url = product.find(".productLink").attr("href");
+    const url = product.find(".productDetails a").attr("href");
 
     if (!name || !price || !url) return null;
 
@@ -31,13 +31,14 @@ async function getCardKingdomPrice(cardName) {
       price,
       url: "https://www.cardkingdom.com" + url,
     };
-  } catch {
+  } catch (err) {
+    console.error("Card Kingdom scraping failed:", err.message);
     return null;
   }
 }
 
 /**
- * ดึงข้อมูลการ์ดจาก Scryfall แบบ fuzzy
+ * 🔸 ดึงข้อมูลการ์ดจาก Scryfall แบบ fuzzy
  */
 async function getCardDetails(cardName) {
   try {
@@ -57,7 +58,8 @@ async function getCardDetails(cardName) {
       ),
       scryfall_url: c.scryfall_uri,
     };
-  } catch {
+  } catch (err) {
+    console.error("Scryfall API failed:", err.message);
     return null;
   }
 }
