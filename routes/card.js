@@ -14,27 +14,32 @@ async function getCardKingdomPrice(cardName) {
 
   try {
     const res = await axios.get(searchUrl, {
-      headers: { "User-Agent": "Mozilla/5.0" },
+      headers: { "User-Agent": "Mozilla/5.0" }, // สำคัญเพื่อหลีกเลี่ยง bot detection
     });
 
     const $ = cheerio.load(res.data);
     const product = $(".productDetail").first();
 
     const name = product.find(".productLink").text().trim();
-    const price = product.find(".stylePrice").first().text().trim();
+    const price =
+      product.find(".stylePrice").first().text().trim() ||
+      product.find(".price").first().text().trim(); // fallback
+
     const url = product.find(".productLink").attr("href");
 
-    if (!name || !price || !url) return null;
+    if (!name || !url) return null;
 
     return {
       name,
-      price,
+      price: price || "ไม่พบราคา",
       url: "https://www.cardkingdom.com" + url,
     };
-  } catch {
+  } catch (err) {
+    console.error("Card Kingdom scrape error:", err.message);
     return null;
   }
 }
+
 
 /**
  * ดึงข้อมูลการ์ดจาก Scryfall แบบ fuzzy

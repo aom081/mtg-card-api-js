@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import cardRouter from "./routes/card.js";
+import cardRouter from "../routes/card.js";
 import swaggerUi from "swagger-ui-express";
-import swaggerDoc from "./docs/swagger.js";
+import swaggerDoc from "../docs/swagger.js";
 
 dotenv.config();
 
