@@ -1,0 +1,31 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# dotenv env vars (ถ้ามีใช้ในอนาคต)
+.env
+.env.*
+
+# VSCode
+.vscode/
+
+# Render build cache (หากมี)
+render.yaml
+
+# Optional lockfiles (ขึ้นอยู่กับ package manager ที่ใช้)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

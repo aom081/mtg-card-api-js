@@ -11,6 +11,7 @@ export default {
       get: {
         summary:
           "แนะนำชื่อการ์ดแบบ autocomplete พร้อมรูป ราคา หมายเลข และประเภท",
+        tags: ["Card"],
         parameters: [
           {
             name: "text",
@@ -35,7 +36,10 @@ export default {
                       items: {
                         type: "object",
                         properties: {
-                          name: { type: "string", example: "Lightning Bolt" },
+                          name: {
+                            type: "string",
+                            example: "Lightning Bolt",
+                          },
                           image: {
                             type: "string",
                             format: "uri",
@@ -85,8 +89,14 @@ export default {
                 schema: {
                   type: "object",
                   properties: {
-                    error: { type: "string" },
-                    detail: { type: "string" },
+                    error: {
+                      type: "string",
+                      example: "เกิดข้อผิดพลาด",
+                    },
+                    detail: {
+                      type: "string",
+                      example: "Scryfall API error",
+                    },
                   },
                 },
               },
