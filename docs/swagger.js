@@ -6,23 +6,6 @@ export default {
     description:
       "API สำหรับแนะนำชื่อการ์ด Magic: The Gathering พร้อมรูป ราคา หมายเลข และประเภทการ์ด",
   },
-  servers: [
-    {
-      url: "https://your-render-url.onrender.com",
-      description: "Production Server",
-    },
-    {
-      url: "http://localhost:10000",
-      description: "Local Development Server",
-    },
-  ],
-  tags: [
-    {
-      name: "Card",
-      description:
-        "การดึงข้อมูลเกี่ยวกับการ์ด MTG จาก Scryfall และ Card Kingdom",
-    },
-  ],
   paths: {
     "/api/card/suggest/{text}": {
       get: {
