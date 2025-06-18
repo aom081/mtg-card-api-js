@@ -1,55 +1,59 @@
 import express from "express";
 import axios from "axios";
-import * as cheerio from "cheerio";
+import puppeteer from "puppeteer-core";
 
 const router = express.Router();
 
 /**
- * 🔍 ดึงราคาจาก Card Kingdom พร้อม debug HTML
+ * 🔍 ดึงราคาจาก Card Kingdom ด้วย Puppeteer
  */
 async function getCardKingdomPrice(cardName) {
-  const searchUrl = `https://www.cardkingdom.com/shop/search?search=header&filter[name]=${encodeURIComponent(
+  const searchUrl = `https://www.cardkingdom.com/catalog/search?search=header&filter[name]=${encodeURIComponent(
     cardName
   )}`;
 
   try {
-    const res = await axios.get(searchUrl, {
-      headers: { "User-Agent": "Mozilla/5.0" },
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath:
+        process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+      headless: "new",
     });
 
-    const html = res.data;
-    const $ = cheerio.load(html);
+    const page = await browser.newPage();
+    await page.goto(searchUrl, { waitUntil: "networkidle2", timeout: 0 });
 
-    // 🔸 Debug ดูว่าโหลด HTML มาได้ไหม
-    console.log("✅ HTML loaded. Showing first 500 characters:");
-    console.log(html.slice(0, 500));
+    const result = await page.evaluate(() => {
+      const product = document.querySelector(".itemContentWrapper");
+      if (!product) return null;
 
-    // 🔸 Debug ดูว่ามี element ที่เราต้องการไหม
-    const countItems = $(".itemContentWrapper").length;
-    console.log("🔍 .itemContentWrapper found:", countItems);
+      const name = product
+        .querySelector(".productDetails a")
+        ?.textContent?.trim();
+      const price = product.querySelector(".stylePrice")?.textContent?.trim();
+      const url = product
+        .querySelector(".productDetails a")
+        ?.getAttribute("href");
 
-    const product = $(".itemContentWrapper").first();
-    const name = product.find(".productDetails a").text().trim();
-    const price = product.find(".stylePrice").first().text().trim();
-    const url = product.find(".productDetails a").attr("href");
+      if (!name || !price || !url) return null;
 
-    console.log("🎯 Fetched:", { name, price, url });
+      return {
+        name,
+        price,
+        url: "https://www.cardkingdom.com" + url,
+      };
+    });
 
-    if (!name || !price || !url) return null;
-
-    return {
-      name,
-      price,
-      url: "https://www.cardkingdom.com" + url,
-    };
+    await browser.close();
+    return result || null;
   } catch (err) {
-    console.error("❌ Error fetching from Card Kingdom:", err.message);
+    console.error("❌ Puppeteer Error:", err.message);
     return null;
   }
 }
 
 /**
- * 🔸 ดึงข้อมูลการ์ดจาก Scryfall
+ * 🔸 ดึงข้อมูลจาก Scryfall
  */
 async function getCardDetails(cardName) {
   try {
@@ -70,7 +74,7 @@ async function getCardDetails(cardName) {
       scryfall_url: c.scryfall_uri,
     };
   } catch (err) {
-    console.error("❌ Scryfall API error:", err.message);
+    console.error("❌ Scryfall API Error:", err.message);
     return null;
   }
 }
